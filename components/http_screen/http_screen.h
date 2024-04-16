@@ -14,7 +14,32 @@ namespace esphome
 
         static inline bool is_base64(char c) { return (isalnum(c) || (c == '+') || (c == '/')); }
 
-        std::vector<char> base64_decode(std::string const &);
+        std::vector<char> *base64_decode(std::string const &);
+
+        class Position {
+            public:
+                Position(int width, int height) {
+                    _width = width;
+                    _height = height;
+                };
+                inline int get_x(){ return _x + 1; };
+                inline int get_y(){ return _y + 1; };
+                void add_pixels(int quantity);
+                inline Position operator++(int i) {
+                    add_pixels(1);
+                    return *this;
+                };
+                inline Position& operator +=(const int& quantity) {
+                    add_pixels(quantity);
+                    return *this;
+                };
+
+            private:
+                int _x{0};
+                int _y{0};
+                int _width;
+                int _height;
+        };
 
         class HttpScreen : public Component
         {
@@ -34,7 +59,7 @@ namespace esphome
             float get_setup_priority() const override;
 
         private:
-            std::vector<unsigned short>* data_;
+            std::vector<unsigned short>* data_ {nullptr};
 
             http_request::HttpRequestResponseTrigger *trigger_;
             display::Display *display_;
